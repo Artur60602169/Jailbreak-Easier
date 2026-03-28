@@ -1,7 +1,7 @@
 -- =====================================================================
--- ♛ JAILBREAK STEALTH FARMER [100% ANTI-BAN EDITION] ♛
--- Developer: Artur606021 | Device: Moto G52
--- Core: Legit Speed Simulation, Safe Interactions, Invisible Automation
+-- ♛ JAILBREAK MASTER SCRIPT [TRIO-BOT EDITION] ♛
+-- Konta: Artur606021 (Main), Artur50521001 (Alt), KolegaArtura123 (Police)
+-- Developer: Artur606021 | Device: Moto G52 (Delta X)
 -- =====================================================================
 
 local Players = game:GetService("Players")
@@ -10,30 +10,135 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
-local Lighting = game:GetService("Lighting")
 
 local lp = Players.LocalPlayer
 
--- [ KONFIGURACJA BEZPIECZEŃSTWA (STEALTH) ]
-local Config = {
-    -- Prędkość ustawiona na 22 (Standardowy sprint gracza to 24). 
-    -- Anticheat nie wykryje tego jako speedhack/teleport!
-    SafeWalkSpeed = 22,       
-    EvadePoliceDist = 200     -- Szybciej wykrywa policję, żeby uniknąć aresztowania
+-- [ KONFIGURACJA TOŻSAMOŚCI ]
+local Roles = {
+    Main = "Artur606021",
+    Passenger = "Artur50521001",
+    Police = "KolegaArtura123"
 }
 
--- [ KOORDYNATY ]
-local Waypoints = {
-    VolcanoBase = Vector3.new(-1500, 50, 1800),
-    Bank = Vector3.new(10, 18, 780),
-    Jewelry = Vector3.new(130, 18, 1300)
-}
+-- [ WSPÓLNY MODUŁ: ANTI-AFK & OPTYMALIZACJA ]
+lp.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+local function OptimizeHardware()
+    game:GetService("Lighting").GlobalShadows = false
+    for _, v in pairs(Workspace:GetDescendants()) do
+        if v:IsA("BasePart") then v.Material = Enum.Material.SmoothPlastic v.CastShadow = false end
+    end
+end
+OptimizeHardware()
 
 -- =====================================================================
--- [ SYSTEM OPTYMALIZACJI SPRZĘTOWEJ (MOTO G52) ]
+-- 1. LOGIKA DLA BOTA POLICJANTA (KolegaArtura123)
 -- =====================================================================
-spawn(function()
-    Lighting.GlobalShadows = false
+if lp.Name == Roles.Police then
+    print("[SYSTEM]: Uruchomiono jako BOT POLICJANT.")
+    
+    spawn(function()
+        -- Bot policjant teleportuje się w bezpieczne miejsce (np. dach wieżowca),
+        -- aby serwer widział aktywną policję i otworzył napady.
+        local safeSpot = CFrame.new(720, 200, 1150) 
+        
+        while task.wait(5) do
+            if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+                local root = lp.Character.HumanoidRootPart
+                if (root.Position - safeSpot.Position).Magnitude > 20 then
+                    root.CFrame = safeSpot
+                    print("[POLICE-BOT]: Powrót na posterunek AFK.")
+                end
+            end
+        end
+    end)
+
+-- =====================================================================
+-- 2. LOGIKA DLA BOTA PASAŻERA (Artur50521001)
+-- =====================================================================
+elseif lp.Name == Roles.Passenger then
+    print("[SYSTEM]: Uruchomiono jako BOT PASAŻER (Money Multiplier).")
+
+    spawn(function()
+        while task.wait(1) do
+            local szef = Players:FindFirstChild(Roles.Main)
+            if szef and szef.Character and szef.Character:FindFirstChild("HumanoidRootPart") and lp.Character then
+                local root = lp.Character.HumanoidRootPart
+                local szefRoot = szef.Character.HumanoidRootPart
+                
+                -- Jeśli Szef jest w aucie, bot teleportuje się do auta i wsiada
+                if szef.Character.Humanoid.SeatPart then
+                    root.CFrame = szefRoot.CFrame * CFrame.new(2, 0, 0)
+                    for _, prompt in pairs(Workspace:GetDescendants()) do
+                        if prompt:IsA("ProximityPrompt") and (prompt.ActionText == "Passenger" or prompt.ObjectText == "Vehicle") then
+                            if (root.Position - prompt.Parent.Position).Magnitude < 15 then
+                                fireproximityprompt(prompt)
+                            end
+                        end
+                    end
+                else
+                    -- Jeśli Szef idzie pieszo, bot podąża za nim (Noclipped)
+                    if (root.Position - szefRoot.Position).Magnitude > 10 then
+                        root.CFrame = szefRoot.CFrame * CFrame.new(0, 0, 4)
+                    end
+                end
+            end
+        end
+    end)
+
+-- =====================================================================
+-- 3. LOGIKA DLA GŁÓWNEGO KONTA (Artur606021) - STEALTH FARMER
+-- =====================================================================
+elseif lp.Name == Roles.Main then
+    print("[SYSTEM]: Uruchomiono jako MAIN ACCOUNT. Start farmy...")
+
+    -- [ TUTAJ ZNAJDUJE SIĘ TWÓJ BEZPIECZNY STEALTH FARMER ]
+    local function StealthMove(targetPos)
+        local root = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+        if not root then return end
+        local dist = (targetPos - root.Position).Magnitude
+        local tween = TweenService:Create(root, TweenInfo.new(dist / 22, Enum.EasingStyle.Linear), {CFrame = CFrame.new(targetPos)})
+        tween:Play()
+        tween.Completed:Wait()
+    end
+
+    spawn(function()
+        local Waypoints = {
+            Bank = Vector3.new(10, 18, 780),
+            Jewelry = Vector3.new(130, 18, 1300),
+            Volcano = Vector3.new(-1500, 50, 1800)
+        }
+        
+        while task.wait(2) do
+            if not lp.Character or not lp.Character:FindFirstChild("HumanoidRootPart") then continue end
+            
+            local hasBag = lp.Character:FindFirstChild("Backpack") and lp.Character.Backpack:FindFirstChild("MoneyBag")
+            if hasBag then
+                StealthMove(Waypoints.Volcano)
+                ReplicatedStorage.Events.TurnInRobbery:FireServer()
+                task.wait(2)
+            end
+
+            StealthMove(Waypoints.Bank)
+            task.wait(10) -- Czas na napad (AutoHold E działa w tle)
+            
+            StealthMove(Waypoints.Jewelry)
+            task.wait(10)
+        end
+    end)
+
+    -- AutoHold E dla Maina
+    game:GetService("ProximityPromptService").PromptButtonHoldBegan:Connect(function(p) fireproximityprompt(p) end)
+    RunService.RenderStepped:Connect(function()
+        for _, v in pairs(Workspace:GetDescendants()) do
+            if v:IsA("ProximityPrompt") then v.HoldDuration = 0 end
+        end
+    end)
+
+end
     Lighting.FogEnd = 9e9
     Workspace.Terrain.WaterWaveSize = 0
     Workspace.Terrain.WaterReflectance = 0
