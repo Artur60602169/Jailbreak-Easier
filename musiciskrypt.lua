@@ -1,39 +1,49 @@
--- =====================================================================
--- ♛ JAILBREAK MASTER LOADER [MUSIC + SCRIPT] ♛
--- Developer: Artur606021 | Repo: Jailbreak-Easier
--- System: Automatyczne ładowanie muzyki i farmy AFK
--- =====================================================================
+-- Artur System - Emergency Loader
+local function Log(txt)
+    game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
+        Text = "[SYSTEM]: " .. txt,
+        Color = Color3.fromRGB(255, 255, 0),
+        Font = Enum.Font.SourceSansBold
+    })
+    print(txt)
+end
 
-local function LoadArturSystem()
-    local GitHubURL = "https://raw.githubusercontent.com/Artur60602169/Jailbreak-Easier/main/"
+local function LoadFile(name)
+    local url = "https://raw.githubusercontent.com/Artur60602169/Jailbreak-Easier/main/" .. name
+    local success, content = pcall(function() return game:HttpGet(url) end)
     
-    print("[SYSTEM]: Inicjalizacja pakietu Artur606021...")
-
-    -- 1. Ładowanie Odtwarzacza Muzyki (music.lua)
-    local successMusic, errMusic = pcall(function()
-        loadstring(game:HttpGet(GitHubURL .. "music.lua"))()
-    end)
-    
-    if successMusic then
-        print("[SYSTEM]: Muzyka załadowana pomyślnie.")
+    if success and content and #content > 0 then
+        local func, err = loadstring(content)
+        if func then
+            spawn(func)
+            return true
+        else
+            Log("Błąd składni w " .. name .. ": " .. tostring(err))
+        end
     else
-        warn("[SYSTEM ERROR]: Nie udało się odpalić music.lua -> " .. tostring(errMusic))
+        Log("Nie znaleziono pliku na GitHubie: " .. name)
     end
+    return false
+end
 
-    task.wait(1) -- Krótka przerwa dla stabilności Delta X
+-- START SYSTEMU
+Log("Próba połączenia z GitHubem...")
 
-    -- 2. Ładowanie Głównego Skryptu (loader.lua / Master Script)
-    local successScript, errScript = pcall(function()
-        loadstring(game:HttpGet(GitHubURL .. "loader.lua"))()
-    end)
+-- 1. Odpalanie Muzyki (Próbujemy załadować kod muzyki)
+if LoadFile("music.lua") then
+    Log("Odtwarzacz muzyki: OK")
+else
+    Log("Odtwarzacz muzyki: BŁĄD")
+end
 
-    if successScript then
-        print("[SYSTEM]: Główny skrypt farmy uruchomiony.")
-    else
-        warn("[SYSTEM ERROR]: Nie udało się odpalić loader.lua -> " .. tostring(errScript))
-    end
+task.wait(2) -- Przerwa dla stabilności Delta X
 
-    -- 3. Powiadomienie końcowe w rogu ekranu (Safe Popup Style)
+-- 2. Odpalanie Głównego Skryptu
+if LoadFile("loader.lua") then
+    Log("Główny skrypt: OK")
+else
+    Log("Główny skrypt: BŁĄD")
+end
     pcall(function()
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "ARTUR SYSTEM",
