@@ -1,39 +1,32 @@
--- [[ ARTUR SYSTEM - ULTIMATE FIX ]]
-print("Inicjalizacja systemu...")
+-- [[ ARTUR MUSIC PLAYER - STABLE ]]
+local fileName = "muzyka.ogg"
+local url = "https://raw.githubusercontent.com/Artur60602169/Jailbreak-Easier/main/" .. fileName
 
--- Zapobiega błędom ładowania (Bypass nil loadstring)
-local function ExecuteRemote(url)
-    local success, content = pcall(function() return game:HttpGet(url) end)
-    if success and content then
-        local func = loadstring(content)
-        if func then 
-            task.spawn(func) 
-            return true
-        end
+local function Play()
+    -- Pobieranie jeśli nie ma pliku
+    if not isfile(fileName) then
+        print("Pobieranie muzyki...")
+        local s, res = pcall(function() return game:HttpGet(url) end)
+        if s and res then writefile(fileName, res) end
     end
-    return false
-end
 
--- 1. ODTWARZACZ MUZYKI (Wbudowany, by nie wywalało błędu nil)
-local function StartMusic()
-    local url = "https://raw.githubusercontent.com/Artur60602169/Jailbreak-Easier/main/muzyka.ogg"
-    local fileName = "muzyka.ogg"
+    -- Odtwarzanie
+    local s = Instance.new("Sound", game:GetService("CoreGui"))
+    s.Name = "ArturAudio"
     
-    task.spawn(function()
-        if not isfile(fileName) then
-            local s, res = pcall(function() return game:HttpGet(url) end)
-            if s and res then writefile(fileName, res) end
-        end
-        
-        local s = Instance.new("Sound", game:GetService("CoreGui"))
-        s.Name = "ArturMusic"
-        s.SoundId = getcustomasset(fileName)
+    local success, asset = pcall(function() return getcustomasset(fileName) end)
+    if success then
+        s.SoundId = asset
         s.Volume = 0.5
         s.Looped = true
         s:Play()
-    end)
+        print("Muzyka gra!")
+    else
+        warn("Twoja Delta X nie wspiera getcustomasset!")
+    end
 end
 
+pcall(Play)
 -- 2. GŁÓWNA LOGIKA (Main / Bots)
 local lp = game:GetService("Players").LocalPlayer
 local Roles = {
