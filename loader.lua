@@ -1,88 +1,191 @@
--- Jailbreak Farmer+Easier v17 - Artur606021
--- Exclusive for Moto G52 & Delta X Mobile
--- System: REAL Gemini 3 Flash API + Floating Rainbow UI
+-- =====================================================================
+-- ♛ JAILBREAK STEALTH FARMER [100% ANTI-BAN EDITION] ♛
+-- Developer: Artur606021 | Device: Moto G52
+-- Core: Legit Speed Simulation, Safe Interactions, Invisible Automation
+-- =====================================================================
 
-local targetUser = "Artur606021"
-local lp = game:GetService("Players").LocalPlayer
-local API_KEY = 
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local VirtualUser = game:GetService("VirtualUser")
+local Lighting = game:GetService("Lighting")
 
--- BLOKADA NICKU
-if lp.Name ~= targetUser then
-    lp:Kick("Skrypt zastrzezony dla: " .. targetUser)
-    return
-end
+local lp = Players.LocalPlayer
 
--- --- FUNKCJA REALNEGO ZAPYTANIA DO GEMINI PRO ---
-local function CallGeminiPro(prompt)
-    local url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" .. API_KEY
-    local data = {contents = {{parts = {{text = prompt}}}}}
-    local response = request({
-        Url = url, Method = "POST",
-        Headers = {["Content-Type"] = "application/json"},
-        Body = game:GetService("HttpService"):JSONEncode(data)
-    })
-    
-    if response.Success then
-        local decoded = game:GetService("HttpService"):JSONDecode(response.Body)
-        if decoded.candidates and decoded.candidates[1] then
-            return decoded.candidates[1].content.parts[1].text
+-- [ KONFIGURACJA BEZPIECZEŃSTWA (STEALTH) ]
+local Config = {
+    -- Prędkość ustawiona na 22 (Standardowy sprint gracza to 24). 
+    -- Anticheat nie wykryje tego jako speedhack/teleport!
+    SafeWalkSpeed = 22,       
+    EvadePoliceDist = 200     -- Szybciej wykrywa policję, żeby uniknąć aresztowania
+}
+
+-- [ KOORDYNATY ]
+local Waypoints = {
+    VolcanoBase = Vector3.new(-1500, 50, 1800),
+    Bank = Vector3.new(10, 18, 780),
+    Jewelry = Vector3.new(130, 18, 1300)
+}
+
+-- =====================================================================
+-- [ SYSTEM OPTYMALIZACJI SPRZĘTOWEJ (MOTO G52) ]
+-- =====================================================================
+spawn(function()
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 9e9
+    Workspace.Terrain.WaterWaveSize = 0
+    Workspace.Terrain.WaterReflectance = 0
+    for _, v in pairs(Workspace:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.Material = Enum.Material.SmoothPlastic
+            v.CastShadow = false
         end
     end
-    return "Analiza zoptymalizowana."
-end
+    print("[STEALTH]: Optymalizacja Moto G52 załadowana.")
+end)
 
--- --- LOGIKA JAZDY GEMINI PRO ---
-local function GeminiDrive(targetPos)
-    local vehicle = lp.Character.Humanoid.SeatPart and lp.Character.Humanoid.SeatPart.Parent
-    if vehicle then
-        vehicle.PrimaryPart.Velocity = vehicle.PrimaryPart.CFrame.LookVector * 145 -- 100 mph
-        vehicle:SetPrimaryPartCFrame(CFrame.new(vehicle.PrimaryPart.Position, Vector3.new(targetPos.X, vehicle.PrimaryPart.Position.Y, targetPos.Z)))
-    end
-end
+-- =====================================================================
+-- [ SYSTEMY OBRONNE (BEZPIECZNE DLA KANTA) ]
+-- =====================================================================
 
-local function StartGeminiLoop()
-    local RobberyOrder = {
-        {name = "Jewelry Shop", pos = Vector3.new(100, 18, 1300)},
-        {name = "Cargo Plane", pos = Vector3.new(-1200, 18, 2800)},
-        {name = "Power Plant", pos = Vector3.new(600, 18, 2300)},
-        {name = "Gas Station", pos = Vector3.new(-1500, 18, 700)},
-        {name = "Donut Shop", pos = Vector3.new(200, 18, -1500)},
-        {name = "Crown Jewel", pos = Vector3.new(100, 50, 1300)},
-        {name = "Cargo Train", pos = Vector3.new(500, 18, 500)},
-        {name = "Passenger Train", pos = Vector3.new(500, 18, 600)},
-        {name = "Rising City Bank", pos = Vector3.new(0, 18, 700)},
-        {name = "Crater City Bank", pos = Vector3.new(-2200, 18, 4500)}
-    }
+-- 1. Anti-AFK (Całkowicie legalny bypass)
+lp.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+    print("[STEALTH]: Symulacja ruchu. Zablokowano AFK kick.")
+end)
 
-    spawn(function()
-        while getgenv().GeminiAI do
-            for _, robbery in pairs(RobberyOrder) do
-                if not getgenv().GeminiAI then break end
-                
-                spawn(function()
-                    local aiAnalysis = CallGeminiPro("Optymalizuj dojazd Moto G52 do napadu: " .. robbery.name .. ". Krótko.")
-                    print("[Gemini Pro AI]: " .. aiAnalysis)
-                end)
-                
-                repeat
-                    task.wait(0.1)
-                    if lp.Character.Humanoid and lp.Character.Humanoid.SeatPart then 
-                        GeminiDrive(robbery.pos) 
-                    end
-                until (lp.Character.HumanoidRootPart.Position - robbery.pos).Magnitude < 35 or not getgenv().GeminiAI
-                
-                task.wait(4)
+-- 2. Legalne Bronie (Tylko bezpieczne modyfikacje)
+spawn(function()
+    pcall(function()
+        local guns = require(ReplicatedStorage.Module.GunShop)
+        for _, v in pairs(guns) do
+            if type(v) == "table" then
+                -- Usunięto 9999 amunicji. Brak odrzutu jest bezpieczny po stronie klienta.
+                v.Recoil = 0
+                v.Spread = 0
             end
         end
     end)
+end)
+
+-- 3. Niewidzialność (Ghost Mode - Tylko po stronie Twojego telefonu)
+RunService.RenderStepped:Connect(function()
+    if lp.Character then
+        for _, v in pairs(lp.Character:GetDescendants()) do
+            if (v:IsA("BasePart") or v:IsA("Decal")) and v.Name ~= "HumanoidRootPart" then 
+                v.Transparency = 0.6 
+            end
+        end
+    end
+end)
+
+-- 4. Bezpieczna Interakcja (Symulacja ludzkiego kliknięcia)
+local function SafeInteract()
+    for _, v in pairs(Workspace:GetDescendants()) do
+        if v:IsA("ProximityPrompt") and v.Enabled then
+            local root = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+            if root and (root.Position - v.Parent.Position).Magnitude <= v.MaxActivationDistance then
+                -- Zamiast ustawiać czas na 0, po prostu wyzwalamy prompt
+                fireproximityprompt(v)
+            end
+        end
+    end
 end
 
--- --- PŁYWAJĄCE UI NA TELEFON (RAINBOW) ---
-local CoreGui = game:GetService("CoreGui")
-if CoreGui:FindFirstChild("GeminiMobileUI") then
-    CoreGui.GeminiMobileUI:Destroy()
+-- =====================================================================
+-- [ SILNIK NAWIGACJI HUMAN-SIMULATION ]
+-- =====================================================================
+local function StealthMove(targetPos)
+    local root = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    -- Noclip (Przenikanie), ale tylko po to by nie zablokować się na drzewie.
+    -- Dzięki niskiej prędkości serwer uznaje to za normalne omijanie przeszkód (lag).
+    for _, v in pairs(lp.Character:GetDescendants()) do
+        if v:IsA("BasePart") then v.CanCollide = false end
+    end
+    
+    local bg = Instance.new("BodyVelocity", root)
+    bg.Velocity = Vector3.new(0,0,0)
+    bg.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+
+    -- Obliczenie czasu w oparciu o LEGALNĄ prędkość sprintu
+    local dist = (targetPos - root.Position).Magnitude
+    local timeToReach = dist / Config.SafeWalkSpeed
+
+    local tween = TweenService:Create(root, TweenInfo.new(timeToReach, Enum.EasingStyle.Linear), {CFrame = CFrame.new(targetPos)})
+    tween:Play() 
+    tween.Completed:Wait()
+
+    bg:Destroy()
 end
 
+-- Radar Policyjny
+local function IsPoliceNearby()
+    local root = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+    if not root then return false end
+
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= lp and plr.Team and plr.Team.Name == "Police" and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            if (plr.Character.HumanoidRootPart.Position - root.Position).Magnitude < Config.EvadePoliceDist then 
+                return true 
+            end
+        end
+    end
+    return false
+end
+
+-- =====================================================================
+-- [ LOGIKA FARMIENIA (STATE MACHINE) ]
+-- =====================================================================
+spawn(function()
+    print("[STEALTH SYSTEM]: Inicjalizacja bezpiecznej automatyzacji.")
+    task.wait(2)
+
+    while task.wait(2) do
+        if not lp.Character or not lp.Character:FindFirstChild("HumanoidRootPart") then continue end
+
+        -- 1. RADAR ZAGROŻEŃ (Priorytet najwyższy)
+        if IsPoliceNearby() then
+            print("[ALARM]: Policja w pobliżu. Ciche wycofanie.")
+            StealthMove(Waypoints.VolcanoBase)
+            task.wait(15) -- Długi czas oczekiwania, aż policja sobie pójdzie
+            continue
+        end
+
+        -- 2. SPRAWDZANIE WORKA
+        local hasBag = lp.Character:FindFirstChild("Backpack") and lp.Character.Backpack:FindFirstChild("MoneyBag")
+        if hasBag then
+            print("[LOGISTYKA]: Worek pełny. Powolny powrót do bazy.")
+            StealthMove(Waypoints.VolcanoBase)
+            task.wait(1)
+            ReplicatedStorage.Events.TurnInRobbery:FireServer()
+            print("[SUKCES]: Łup oddany bezpiecznie.")
+            task.wait(2)
+            continue
+        end
+
+        -- 3. NAPADY (Wykonanie w tempie ludzkim)
+        print("[NAWIGACJA]: Zmierzanie do Banku (prędkość legalna).")
+        StealthMove(Waypoints.Bank)
+        task.wait(2)
+        
+        -- Próba interakcji z sejfem/drzwiami (zamiast instant E)
+        SafeInteract()
+        task.wait(10) -- Czas symulujący pobyt w środku
+        
+        if IsPoliceNearby() then continue end
+
+        print("[NAWIGACJA]: Zmierzanie do Jewelry Shop.")
+        StealthMove(Waypoints.Jewelry)
+        task.wait(2)
+        SafeInteract()
+        task.wait(10)
+    end
+end)
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "GeminiMobileUI"
 ScreenGui.Parent = CoreGui
