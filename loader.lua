@@ -4,7 +4,7 @@
 
 local targetUser = "Artur606021"
 local lp = game:GetService("Players").LocalPlayer
-local API_KEY = "AIzaSyDkRFyE5jyUN-FqDQ3ffgla_Uavo6injp8"
+local API_KEY = 
 
 -- BLOKADA NICKU
 if lp.Name ~= targetUser then
