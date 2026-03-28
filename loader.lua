@@ -1,39 +1,61 @@
 -- =====================================================================
--- ♛ JAILBREAK MASTER SCRIPT [TRIO-BOT EDITION] ♛
--- Konta: Artur606021 (Main), Artur50521001 (Alt), KolegaArtura123 (Police)
--- Developer: Artur606021 | Device: Moto G52 (Delta X)
+-- ARTUR SYSTEM - CLEAN LOADER
 -- =====================================================================
+print("--- LOADER STARTING ---")
 
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local VirtualUser = game:GetService("VirtualUser")
+local lp = game:GetService("Players").LocalPlayer
+local Roles = {Main = "Artur606021", Pass = "Artur50521001", Pol = "KolegaArtura123"}
 
-local lp = Players.LocalPlayer
-
--- [ KONFIGURACJA TOŻSAMOŚCI ]
-local Roles = {
-    Main = "Artur606021",
-    Passenger = "Artur50521001",
-    Police = "KolegaArtura123"
-}
-
--- [ WSPÓLNY MODUŁ: ANTI-AFK & OPTYMALIZACJA ]
-lp.Idled:Connect(function()
-    VirtualUser:CaptureController()
-    VirtualUser:ClickButton2(Vector2.new())
-end)
-
-local function OptimizeHardware()
-    game:GetService("Lighting").GlobalShadows = false
-    for _, v in pairs(Workspace:GetDescendants()) do
-        if v:IsA("BasePart") then v.Material = Enum.Material.SmoothPlastic v.CastShadow = false end
-    end
+-- Funkcja powiadomienia na czacie (żebyś widział, że działa)
+local function ChatLog(msg)
+    game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
+        Text = "[ARTUR-SYSTEM]: " .. msg,
+        Color = Color3.fromRGB(0, 255, 150)
+    })
 end
-OptimizeHardware()
 
+ChatLog("Weryfikacja konta: " .. lp.Name)
+
+-- 1. LOGIKA POLICJI
+if lp.Name == Roles.Pol then
+    ChatLog("Tryb: BOT POLICJANT")
+    spawn(function()
+        while task.wait(5) do
+            if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+                lp.Character.HumanoidRootPart.CFrame = CFrame.new(720, 200, 1150)
+            end
+        end
+    end)
+
+-- 2. LOGIKA PASAŻERA
+elseif lp.Name == Roles.Pass then
+    ChatLog("Tryb: BOT PASAŻER")
+    spawn(function()
+        while task.wait(1) do
+            local szef = game:GetService("Players"):FindFirstChild(Roles.Main)
+            if szef and szef.Character and lp.Character then
+                lp.Character.HumanoidRootPart.CFrame = szef.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+            end
+        end
+    end)
+
+-- 3. LOGIKA MAINA (FARMA)
+elseif lp.Name == Roles.Main then
+    ChatLog("Tryb: GŁÓWNY FARMER")
+    
+    -- AutoHold E (Zawsze działa na Mainie)
+    game:GetService("ProximityPromptService").PromptButtonHoldBegan:Connect(function(p) fireproximityprompt(p) end)
+    
+    spawn(function()
+        while task.wait(5) do
+            print("Farma pracuje...")
+            -- Tutaj uproszczony ruch dla testu
+            -- (Jeśli to zadziała, dodamy resztę trasy)
+        end
+    end)
+else
+    ChatLog("BŁĄD: Konto " .. lp.Name .. " nie jest na liście!")
+end
 -- =====================================================================
 -- 1. LOGIKA DLA BOTA POLICJANTA (KolegaArtura123)
 -- =====================================================================
