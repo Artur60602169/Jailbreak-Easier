@@ -1,39 +1,30 @@
---[[
-    CLOVR FE FULL-BODY VR - JAILBREAK EDITION (700+ LINES)
-    CUSTOM MODS: 360 VR VIEW, 1:1 CAMERA LOCK, STATIC ARMS, PAD CONTROLS
-    OPTIMIZED FOR MOTO G52 & DELTA X EXECUTOR
---]]
+-- Sprawdzamy, czy jesteś w dobrej grze
+local targetID = 127029738658697
 
---|| Settings:
-local StudsOffset = 0 -- Character height
-local Smoothness = .5 -- Character interpolation
-local AnchorCharacter = true -- Prevent physics inconsistencies
-local HideCharacter = false -- Hide character on a platform
-local NoCollision = true -- Disable player collision
-local ChatEnabled = true -- See chat in-game
-local ChatLocalRange = 75 -- Local chat range
-local ViewportEnabled = false -- Disabled for Moto G52 FPS
-local ViewportRange = 30 -- Maximum distance for update
-local RagdollEnabled = true -- Use character instead of hats
-local RagdollHeadMovement = false -- Disabled to avoid 11s wait
-local AutoRun = false -- Run script on respawn
-local AutoRespawn = true -- Kill real body when virtual dies
-local WearAllAccessories = true -- Use all hats
-local AccurateHandPosition = false -- STATIC ARMS MOD: Hands won't follow camera
+if game.PlaceId == targetID then
+    print("Bee Sandbox wykryte! Uruchamianie wsparcia...")
 
-local AccessorySettings = {
-    LeftArm = ""; RightArm = ""; LeftLeg = ""; RightLeg = ""; Torso = "";
-    Head = true; BlockArms = true; BlockLegs = true; BlockTorso = true;
-    LimbOffset = CFrame.Angles(math.rad(90), 0, 0);
-}
+    -- Metoda oszukania skryptu (Spoofing PlaceId)
+    -- Jeśli skrypt sprawdza ID przez game.PlaceId, to go nadpisujemy
+    local mt = getrawmetatable(game)
+    local oldindex = mt.__index
+    setreadonly(mt, false)
 
-local FootPlacementSettings = {
-    RightOffset = Vector3.new(.5, 0, 0),
-    LeftOffset = Vector3.new(-.5, 0, 0),
-}
+    mt.__index = newcclosure(function(self, index)
+        if index == "PlaceId" and self == game then
+            return 1537690962 -- Podajemy ID oryginalnego BSS
+        end
+        return oldindex(self, index)
+    end)
 
---|| Core Script:
-local Script = nil;
+    setreadonly(mt, true)
+
+    -- Teraz uruchamiamy oryginalny skrypt Atlas
+    -- On będzie myślał, że jest w prawdziwym Bee Swarm Simulator
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Chris12089/atlasbss/main/script.lua"))()
+else
+    warn("Uruchomiłeś skrypt w złej grze! To ID to: " .. game.PlaceId)
+end
 Script = function()
     -- Variables
     local Players = game:GetService("Players")
